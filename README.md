@@ -1,7 +1,7 @@
 # FrinkiacBot (Work In Progress)
 
 
-A bot that uses the [[https://frinkiac.com/|frinkiac]] engine.
+A bot that uses the [frinkiac](https://frinkiac.com/) engine.
 
 It grabs a random image and quote, stores the image and adds the text to the image.
 
