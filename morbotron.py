@@ -7,7 +7,7 @@ import requests
 
 # gets quote and image from frinkiac
 def get_quote():
-    r = requests.get("https://frinkiac.com/api/random")
+    r = requests.get("https://morbotron.com/api/random")
     # Check if our request had a valid response.
     if r.status_code == 200:
         json = r.json()
@@ -17,7 +17,7 @@ def get_quote():
         timestamp, episode, _ = map(str, json["Frame"].values())
         
         localFileName = episode+'-'+timestamp
-        image_url = "https://frinkiac.com/meme/" + episode + "/" + timestamp
+        image_url = "https://morbotron.com/meme/" + episode + "/" + timestamp
         # Combine each line of subtitles into one string.
         caption = "\n".join([subtitle["Content"] for subtitle in json["Subtitles"]])
         
