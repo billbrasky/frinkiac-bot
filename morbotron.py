@@ -7,37 +7,47 @@ import requests
 
 # gets quote and image from frinkiac
 def get_quote():
+    res = {}
     r = requests.get("https://morbotron.com/api/random")
     # Check if our request had a valid response.
     if r.status_code == 200:
         json = r.json()
         pprint(json)
+        image_urls = []
+        caption = "\n".join([subtitle["Content"] for subtitle in json["Subtitles"]])
+        res.update({'quote': caption})
+        for nearby in json["Nearby"]:
+            nearby_episode = str(nearby['Episode'])
+            nearby_timestamp = str(nearby['Timestamp'])
+            image_url = nearby_episode + '/' + nearby_timestamp
+            
+            image_urls.append(image_url)
+
+        res.update({'images': image_urls})
         # Extract the episode number and timestamp from the API response
         # and convert them both to strings.
-        timestamp, episode, _ = map(str, json["Frame"].values())
-        
-        localFileName = episode+'-'+timestamp
-        image_url = "https://morbotron.com/meme/" + episode + "/" + timestamp
+#        timestamp, episode, _ = map(str, json["Frame"].values())
+#        localFileName = episode+'-'+timestamp
         # Combine each line of subtitles into one string.
-        caption = "\n".join([subtitle["Content"] for subtitle in json["Subtitles"]])
-        
-        return image_url, caption, localFileName
+#        res_list.append()
+        return res
 
 
 # saves image to local directory
-def save_image(media, localImage):
+def save_image(media):
+    url = 'https://morbotron.com/img/' + media
+    response = requests.get(url, stream = True)
 
-    response = requests.get(media, stream = True)
-
-    with open(localImage + '.jpg', 'wb') as f:
+    with open('images/' + '-'.join(media.split('/')) + '.jpg', 'wb') as f:
         shutil.copyfileobj(response.raw, f)
 
 
 # saves a new image with quote
-def make_meme(quote, localImage):
+def make_meme(quote, image):
+    image = '-'.join(image.split('/'))
     newLineCount = len(quote.split('\n'))
     textFont = ImageFont.truetype('Simpsonfont.ttf',35)
-    img = Image.open(localImage + '.jpg')
+    img = Image.open('images/'+image + '.jpg')
     width, height = img.size
     draw = ImageDraw.Draw(img)
     deltaFont = 0
@@ -64,11 +74,17 @@ def make_meme(quote, localImage):
     
     draw.multiline_text((baseX, baseY), quote, font = textFont, align = 'center', spacing = 20)
     
-    img.save(localImage + '-quoted.jpg')
+    img.save('images/'+image + '-quoted.jpg')
 
 
+res = get_quote()
 
+for image in res['images']:
+    save_image(image)
+make_meme(res['quote'], res['images'][3])
+"""
+r = requests.get('https://morbotron.com/api/caption?e=S03E04&t=432681')
+json = r.json()
 
-media, quote, localImage = get_quote()
-save_image(media, localImage)
-make_meme(quote, localImage)
+pprint(json)
+"""
